@@ -1,0 +1,5 @@
+## SE SACA EL NODE MODULES
+node_modules
+
+## SE SACA EL PACKAGE-LOCK
+package-lock.json
