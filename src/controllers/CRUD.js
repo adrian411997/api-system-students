@@ -4,9 +4,9 @@ const db = require("../db");
 const postUsuario = async (req, res, next) => {
   try {
     const { nombre, email, password } = req.body;
-    console.log(nombre, email, password);
+
     db.all(
-      "SELECT * FROM usuario WHERE nombre = ? OR email = ?",
+      "SELECT * FROM usuario WHERE usuario_nombre = ? OR email = ?",
       [nombre, email],
       function (err, rows) {
         if (err) {
@@ -20,7 +20,7 @@ const postUsuario = async (req, res, next) => {
             .json({ result: "error", message: "Nombre u email ya registrado" });
         } else {
           db.run(
-            "INSERT INTO usuario (nombre, email, password) VALUES (?, ?, ?)",
+            "INSERT INTO usuario (usuario_nombre, email, password) VALUES (?, ?, ?)",
             [nombre, email, password],
             function (err) {
               if (err) {
@@ -54,7 +54,6 @@ const getAllUsuario = async (req, res, next) => {
 const updateUsuarioNombre = async (req, res, next) => {
   let { id } = req.query;
   let { nombre } = req.body;
-  console.log(id, nombre);
   try {
     db.run(
       "UPDATE usuario SET nombre = ? WHERE id = ?",
@@ -63,7 +62,9 @@ const updateUsuarioNombre = async (req, res, next) => {
         if (err) {
           throw err;
         } else {
-          res.status(200).json({ message: "Nombre cambiado con éxito" });
+          res
+            .status(200)
+            .json({ result: "success", message: "Nombre cambiado con éxito" });
         }
       }
     );
@@ -81,7 +82,10 @@ const updateUsuarioPassword = async (req, res, next) => {
       if (err) {
         throw err;
       } else {
-        res.status(400).json({ message: "Contraseña cambiado con éxito" });
+        res.status(400).json({
+          result: "success",
+          message: "Contraseña cambiado con éxito",
+        });
       }
     }
   );
@@ -92,10 +96,107 @@ const deleteAlluser = async (req, res, next) => {
   });
   res.json({ message: "Eliminados todos papu" });
 };
+
+// MATERIAS
+
+const getMateria = (req, res, next) => {
+  db.all("SELECT * FROM materias", [], function (err, rows) {
+    if (err) {
+      throw err;
+    }
+    let finds = rows;
+    res.status(200).json({ finds });
+  });
+};
+
+const postMateria = (req, res, next) => {
+  const { nombre } = req.body;
+  try {
+    db.all(
+      "SELECT * FROM materias WHERE materia_nombre = ?",
+      [nombre],
+      function (err, rows) {
+        if (err) {
+          throw err;
+        }
+        let find = rows;
+        if (find.length > 0) {
+          return res
+            .status(400)
+            .json({ result: "error", message: "Materia ya registrada" });
+        } else {
+          db.run(
+            "INSERT INTO materias (materia_nombre) VALUES (?)",
+            [nombre],
+            function (err) {
+              if (err) {
+                throw err;
+              }
+              res.status(200).json({
+                result: "success",
+                message: "Materia creada con exito",
+              });
+            }
+          );
+        }
+      }
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+//ALUMNOS
+const postAlumnos = (req, res, next) => {
+  const { nombre, apellido, user_id } = req.body;
+  db.all(
+    "INSERT INTO alumnos (alumno_nombre,apellido,usuario_id) VALUES (?,?,?)",
+    [nombre, apellido, user_id],
+    function (err) {
+      if (err) {
+        throw err;
+      }
+      return res
+        .status(200)
+        .json({ result: "success", message: "Estudiante creado con éxito" });
+    }
+  );
+};
+const getAlumnos = (req, res, next) => {
+  db.all(
+    "SELECT * FROM alumnos JOIN usuario ON alumnos.usuario_id = usuario.id",
+    [],
+    function (err, rows) {
+      if (err) {
+        throw err;
+      }
+      let finds = rows;
+      res.status(200).json({ finds });
+    }
+  );
+};
+
+// NOTA
+const postNota = (req, res, next) => {
+  const { idAlumno, idMateria, nota } = req.body;
+  const fechaDesdeString = new Date("2023-07-10");
+  db.all("INSERT INTO notas (nota,fecha,alumno_id,materia_id) VALUES (?,?,?)", [
+    nota,
+    fechaDesdeString,
+    idAlumno,
+    idMateria,
+  ]);
+};
+
 module.exports = {
   postUsuario,
   getAllUsuario,
   updateUsuarioNombre,
   updateUsuarioPassword,
   deleteAlluser,
+  postMateria,
+  getMateria,
+  postNota,
+  getAlumnos,
+  postAlumnos,
 };
