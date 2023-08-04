@@ -6,13 +6,14 @@ const routes = require("./src/Routes/index.js");
 const app = express();
 const PORT = 3001;
 
+require("dotenv").config();
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Credentials", "false");
+  res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"

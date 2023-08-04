@@ -3,3 +3,7 @@ node_modules
 
 ## SE SACA EL PACKAGE-LOCK
 package-lock.json
+
+## SACAMOS EL ENV
+.env
+datos.db
