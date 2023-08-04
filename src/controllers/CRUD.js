@@ -1,10 +1,48 @@
 const db = require("../db");
-
+const jwt = require("jsonwebtoken");
 //USUARIOS
+const login = async (req, res, next) => {
+  try {
+    let { nombre, password } = req.body;
+
+    db.all(
+      "SELECT * FROM usuario WHERE usuario_nombre = ? AND password = ?",
+      [nombre, password],
+      function (err, rows) {
+        if (err) {
+          throw err;
+        }
+        let find = rows[0];
+        console.log(find);
+        if (find) {
+          const token = jwt.sign(find, process.env.JWT_TOKEN_SECRET);
+
+          return res.status(200).json({
+            result: "success",
+            message: "Inicio de sesion con éxito",
+            token,
+            user: find,
+          });
+        } else {
+          return res
+            .status(400)
+            .json({ result: "error", message: "Credenciales inválidas" });
+        }
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
 const postUsuario = async (req, res, next) => {
   try {
     const { nombre, email, password } = req.body;
-
+    if (!nombre || !email || !password) {
+      return res.status(400).json({
+        message: "Elementos no introducidos correctamente",
+        result: "error",
+      });
+    }
     db.all(
       "SELECT * FROM usuario WHERE usuario_nombre = ? OR email = ?",
       [nombre, email],
@@ -163,9 +201,11 @@ const postAlumnos = (req, res, next) => {
   );
 };
 const getAlumnos = (req, res, next) => {
+  const { id } = req.query;
+  console.log(req.body);
   db.all(
-    "SELECT * FROM alumnos JOIN usuario ON alumnos.usuario_id = usuario.id",
-    [],
+    "SELECT * FROM alumnos WHERE usuario_id = ?",
+    [id],
     function (err, rows) {
       if (err) {
         throw err;
@@ -177,15 +217,23 @@ const getAlumnos = (req, res, next) => {
 };
 
 // NOTA
+
 const postNota = (req, res, next) => {
-  const { idAlumno, idMateria, nota } = req.body;
+  const { idAlumno, idMateria, nota, trim } = req.body;
   const fechaDesdeString = new Date("2023-07-10");
-  db.all("INSERT INTO notas (nota,fecha,alumno_id,materia_id) VALUES (?,?,?)", [
-    nota,
-    fechaDesdeString,
-    idAlumno,
-    idMateria,
-  ]);
+  console.log(req.body);
+  db.all(
+    "INSERT INTO notas (nota,fecha,alumno_id,materia_id,trimestre) VALUES (?,?,?,?,?)",
+    [nota, fechaDesdeString, idAlumno, idMateria, trim],
+    function (err) {
+      if (err) {
+        throw err;
+      }
+      return res
+        .status(200)
+        .json({ result: "success", message: "Nota subida con exito" });
+    }
+  );
 };
 
 module.exports = {
@@ -199,4 +247,5 @@ module.exports = {
   postNota,
   getAlumnos,
   postAlumnos,
+  login,
 };

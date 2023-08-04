@@ -15,7 +15,7 @@ db.run(
 );
 
 db.run(
-  `CREATE TABLE IF NOT EXISTS notas (id INTEGER PRIMARY KEY AUTOINCREMENT, nota FLOAT NOT NULL, fecha DATE NOT NULL, alumno_id INTEGER, materia_id INTEGER, FOREIGN KEY (alumno_id) REFERENCES alumnos(id), FOREIGN KEY (materia_id) REFERENCES materias(id))`
+  `CREATE TABLE IF NOT EXISTS notas (id INTEGER PRIMARY KEY AUTOINCREMENT, nota FLOAT NOT NULL, fecha DATE NOT NULL,trimestre INT NOT NULL, alumno_id INTEGER, materia_id INTEGER,  FOREIGN KEY (alumno_id) REFERENCES alumnos(id), FOREIGN KEY (materia_id) REFERENCES materias(id))`
 );
 
 module.exports = db;
