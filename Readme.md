@@ -6,7 +6,7 @@ Documentacion en progreso
 
 ## Introducción
 
-Esta documentación desarrollo y funcionamiento de una API REST para una aplicacion destinada a ayudar y facilitar la labor docente.
+Esta documentación describe el desarrollo y funcionamiento de una API REST para una aplicacion destinada a ayudar y facilitar la labor docente.
 
 ## Tabla de Contenidos
 
