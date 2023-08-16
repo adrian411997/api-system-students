@@ -79,6 +79,7 @@ const postUsuario = async (req, res, next) => {
   }
 };
 const getAllUsuario = async (req, res, next) => {
+  console.log("trayendo");
   db.all("SELECT * FROM usuario", [], function (err, rows) {
     if (err) {
       throw err;
@@ -202,7 +203,6 @@ const postAlumnos = (req, res, next) => {
 };
 const getAlumnos = (req, res, next) => {
   const { id } = req.query;
-  console.log(req.body);
   db.all(
     "SELECT * FROM alumnos WHERE usuario_id = ?",
     [id],
@@ -216,8 +216,49 @@ const getAlumnos = (req, res, next) => {
   );
 };
 
-// NOTA
+const editAlumnos = (req, res, next) => {
+  const { id, nombre, apellido } = req.body;
+  console.log(nombre, apellido, id);
+  if (!apellido) {
+    db.run("UPDATE alumnos SET alumno_nombre = ? WHERE id = ? ", [nombre, id]);
+  } else if (!nombre) {
+    db.run("UPDATE alumnos set apellido = ? WHERE id = ? ", [apellido, id]);
+  }
+  db.run("UPDATE alumnos SET alumno_nombre = ?, apellido = ? WHERE id = ?", [
+    nombre,
+    apellido,
+    id,
+  ]);
+  res.status(200).json({ message: "Datos cambiados" });
+};
 
+const deleteAlumnos = (req, res, next) => {
+  const { id } = req.query;
+  try {
+    db.run("DELETE FROM alumnos WHERE id = ?", [id]);
+    return res.status(200).json({ message: "Alumno eliminado" });
+  } catch (err) {
+    next(err);
+  }
+};
+// NOTA
+const getNota = (req, res, next) => {
+  const { id } = req.query;
+
+  console.log(id);
+  db.all(
+    "SELECT alumnos.* , materias.materia_nombre AS materia, notas.* FROM notas INNER JOIN alumnos ON notas.alumno_id = alumnos.id INNER JOIN materias ON notas.materia_id = materias.id WHERE alumnos.usuario_id = ?",
+    [id],
+    function (err, rows) {
+      if (err) {
+        throw err;
+      }
+      let finds = rows;
+      console.log(rows);
+      res.status(200).json({ finds });
+    }
+  );
+};
 const postNota = (req, res, next) => {
   const { idAlumno, idMateria, nota, trim } = req.body;
   const fechaDesdeString = new Date("2023-07-10");
@@ -244,8 +285,11 @@ module.exports = {
   deleteAlluser,
   postMateria,
   getMateria,
+  getNota,
   postNota,
   getAlumnos,
   postAlumnos,
   login,
+  editAlumnos,
+  deleteAlumnos,
 };
